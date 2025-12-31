@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>割り箸チャレンジ</title>
+
+<style>
+html,body{
+  margin:0;height:100%;
+  font-family:"Hiragino Mincho ProN","Yu Mincho",serif;
+  background:#111;overflow:hidden;
+}
+
+/* フラッシュ */
+#flash{
+  position:fixed;inset:0;
+  background:#fff;opacity:0;
+  pointer-events:none;z-index:100;
+}
+
+/* ===== スタート ===== */
+#start{
+  position:fixed;inset:0;
+  background:linear-gradient(#f5f1e6,#e3d7bb);
+  display:flex;flex-direction:column;
+  justify-content:center;align-items:center;
+  z-index:10;
+}
+.start-stick{
+  width:20px;height:220px;
+  background:repeating-linear-gradient(
+    to bottom,#e6cfa3 0,#e6cfa3 4px,#d9b985 4px,#d9b985 8px);
+  position:relative;margin-bottom:16px;
+}
+.start-stick::after{
+  content:"";position:absolute;left:50%;
+  width:2px;height:100%;
+  background:#8c6a3f;transform:translateX(-50%);
+}
+.levels button{margin:6px;padding:10px 22px;background:#000;color:#fff;border:none}
+
+/* ===== ゲーム ===== */
+#game{
+  display:none;height:100%;
+  background:linear-gradient(#f7f3e8,#e4dac2);
+  display:flex;flex-direction:column;
+  align-items:center;padding-top:14px;
+}
+
+#chopstickArea{
+  width:90px;height:260px;
+  position:relative;margin:14px 0;
+}
+.stick{
+  width:18px;height:240px;
+  position:absolute;left:50%;
+  transform:translateX(-50%);
+  background:repeating-linear-gradient(
+    to bottom,#e6cfa3 0,#e6cfa3 4px,#d9b985 4px,#d9b985 8px);
+}
+.stick::after{
+  content:"";position:absolute;left:50%;
+  width:2px;height:100%;
+  background:#8c6a3f;transform:translateX(-50%);
+}
+
+.half{
+  position:absolute;
+  background:repeating-linear-gradient(
+    to bottom,#e6cfa3 0,#e6cfa3 4px,#d9b985 4px,#d9b985 8px);
+}
+.jag-left{clip-path:polygon(
+  100% 0,85% 6%,100% 14%,88% 22%,100% 30%,88% 38%,
+  100% 46%,88% 54%,100% 62%,88% 70%,100% 78%,88% 86%,
+  100% 94%,85% 100%,0 100%,0 0);}
+.jag-right{clip-path:polygon(
+  0 0,15% 6%,0 14%,12% 22%,0 30%,12% 38%,
+  0 46%,12% 54%,0 62%,12% 70%,0 78%,12% 86%,
+  0 94%,15% 100%,100% 100%,100% 0);}
+
+/* バー */
+#barWrap{width:96%;max-width:520px;height:14px;background:#aaa;border-radius:10px;}
+#bar{width:100%;height:100%;background:linear-gradient(to right,#999,#ffeb3b 46%,#ffeb3b 54%,#999);position:relative;}
+#cursor{position:absolute;top:-8px;width:4px;height:32px;background:#c62828;}
+
+button{margin-top:10px;padding:10px 22px}
+
+.gold{
+  color:#d4af37;font-size:1.4em;
+  animation:gold .5s ease;
+}
+@keyframes gold{
+  from{transform:scale(1.4);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+
+/* ===== ポップアップ ===== */
+#popup{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;align-items:center;
+  justify-content:center;z-index:200;
+}
+.popup-box{
+  background:#fff;padding:20px 26px;
+  border-radius:14px;text-align:center;
+}
+
+/* ===== 称号一覧 ===== */
+#titleList{
+  position:fixed;inset:0;
+  background:#f7f3e8;
+  display:none;flex-direction:column;
+  align-items:center;overflow:auto;z-index:150;
+}
+.title-item{margin:6px;font-size:1.1em}
+.locked{color:#999}
+</style>
+</head>
+
+<body>
+<div id="flash"></div>
+
+<div id="popup">
+  <div class="popup-box">
+    <h2 id="popupText"></h2>
+    <button onclick="closePopup()">OK</button>
+  </div>
+</div>
+
+<div id="titleList">
+  <h2>称号一覧</h2>
+  <div id="titleItems"></div>
+  <button onclick="closeTitleList()">戻る</button>
+</div>
+
+<div id="start">
+  <div class="start-stick"></div>
+  <h1>割り箸チャレンジ</h1>
+  <div class="levels">
+    <button onclick="startGame(1)">かんたん</button>
+    <button onclick="startGame(2)">ふつう</button>
+    <button onclick="startGame(3)">むずかしい</button>
+  </div>
+  <button onclick="openTitleList()">称号一覧</button>
+</div>
+
+<div id="game">
+  <div id="chopstickArea"></div>
+  <div id="barWrap"><div id="bar"><div id="cursor"></div></div></div>
+  <button id="splitBtn" onclick="split()">割る！</button>
+  <button id="retryBtn" onclick="retry()" style="display:none">もう一度割る</button>
+  <div id="result"></div>
+  <div id="score"></div>
+  <button onclick="backToStart()">スタートへ戻る</button>
+</div>
+
+<script>
+/* ===== 状態 ===== */
+let pos=0,dir=1,timer,speed=2,level=1;
+let streak=[0,0,0];
+
+const ALL_TITLES=[
+ "割り箸の親友","割り箸職人","Chopstick Master",
+ "割り箸の親友 🌈","割り箸職人 🌈","Chopstick Master 🌈",
+ "割り箸割りの達人 銅","割り箸割りの達人 銀","割り箸割りの達人 金",
+ "割り箸割りの達人 🌈","割り箸の神"
+];
+
+let titles=JSON.parse(localStorage.getItem("titles")||"{}");
+ALL_TITLES.forEach(t=>{if(titles[t]===undefined)titles[t]=false});
+save();
+
+function save(){localStorage.setItem("titles",JSON.stringify(titles));}
+
+/* ===== 画面 ===== */
+function startGame(l){
+  level=l;speed=l*1.6;
+  start.style.display="none";
+  game.style.display="flex";
+  retry();
+}
+function backToStart(){
+  clearInterval(timer);
+  game.style.display="none";
+  start.style.display="flex";
+}
+
+/* ===== バー ===== */
+function moveBar(){
+  clearInterval(timer);
+  timer=setInterval(()=>{
+    pos+=dir*speed;
+    if(pos>100||pos<0)dir*=-1;
+    cursor.style.left=pos+"%";
+  },16);
+}
+
+/* ===== リトライ ===== */
+function retry(){
+  clearInterval(timer);
+  chopstickArea.innerHTML='<div class="stick"></div>';
+  result.innerHTML="";score.innerHTML="";
+  splitBtn.style.display="inline";
+  retryBtn.style.display="none";
+  pos=0;dir=1;
+  moveBar();
+}
+
+/* ===== フラッシュ ===== */
+const flashEl = document.getElementById("flash");
+function flash(){
+  flashEl.style.opacity=.9;
+  setTimeout(()=>flashEl.style.opacity=0,120);
+}
+
+/* ===== 割る ===== */
+function split(){
+  clearInterval(timer);
+  splitBtn.style.display="none";
+  retryBtn.style.display="inline";
+
+  const diff=Math.abs(pos-50);
+  const sc=Math.max(0,100-Math.floor(diff*2));
+  score.innerHTML=`スコア：${sc}点`;
+
+  chopstickArea.innerHTML="";
+
+  if(sc>=95){
+    flash();
+    result.innerHTML='<div class="gold">大成功！</div>';
+    perfect();
+
+    streak[level-1]++;
+    showStreak();        // ← 追加
+    checkTitles(sc);    // ← 既存
+  }else{
+    streak[level-1]=0;
+    if(sc>=70){
+      result.innerHTML="少し失敗…";
+      slightFail();
+    }else{
+      result.innerHTML="失敗…";
+      badFail();
+    }
+  }
+}
+/* ===== 割れ方 ===== */
+function perfect(){createHalf(-10,false);createHalf(10,false);}
+function slightFail(){createHalf(-9,true,"left");createHalf(9,true,"right");}
+function badFail(){
+  createHalf(-6,false);
+  const u=document.createElement("div");
+  u.className="half";u.style.width="9px";u.style.height="120px";u.style.left="52%";
+  chopstickArea.appendChild(u);
+  const l=document.createElement("div");
+  l.className="half jag-right";l.style.width="9px";l.style.height="120px";
+  l.style.top="120px";l.style.left="56%";l.style.transform="rotate(24deg)";
+  chopstickArea.appendChild(l);
+}
+function createHalf(x,jag,side){
+  const d=document.createElement("div");
+  d.className="half"+(jag?` jag-${side}`:"");
+  d.style.width="9px";d.style.height="240px";d.style.left="50%";
+  d.style.transform=`translateX(-50%) translateX(${x}px)`;
+  chopstickArea.appendChild(d);
+}
+
+/* ===== 称号 ===== */
+function give(name){
+  if(!titles[name]){
+    titles[name]=true;save();
+    popupText.innerHTML = `🎉 称号獲得！<br><strong>${name}</strong>`;
+    popup.style.display="flex";
+  }
+}
+function checkTitles(sc){
+  const base=["割り箸の親友","割り箸職人","Chopstick Master"][level-1];
+  if(sc>=95)give(base);
+  if(streak[level-1]>=5)give(base+" 🌈");
+  if(sc===100)give("割り箸割りの達人 "+["銅","銀","金"][level-1]);
+  if(titles["割り箸割りの達人 銅"]&&titles["割り箸割りの達人 銀"]&&titles["割り箸割りの達人 金"])
+    give("割り箸割りの達人 🌈");
+  if(titles["割り箸の親友 🌈"]&&titles["割り箸職人 🌈"]&&titles["Chopstick Master 🌈"]&&titles["割り箸割りの達人 🌈"])
+    give("割り箸の神");
+}
+
+/* ===== UI ===== */
+function closePopup(){popup.style.display="none";}
+function openTitleList(){
+  titleItems.innerHTML="";
+  ALL_TITLES.forEach(t=>{
+    titleItems.innerHTML+=`<div class="title-item ${titles[t]?"":"locked"}">
+      ${titles[t]?t:"？？？"}
+    </div>`;
+  });
+  titleList.style.display="flex";
+}
+function closeTitleList(){titleList.style.display="none";}
+
+function showStreak(){
+  const s = streak[level-1];
+  if(s >= 2){
+    const div = document.createElement("div");
+    div.className = "gold";
+    div.style.fontSize = "1.1em";
+    div.innerText = `${s}連続成功！`;
+    result.appendChild(div);
+  }
+}
+</script>
+</body>
+</html>
