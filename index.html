@@ -11,23 +11,32 @@ html,body{
   font-family:"Hiragino Mincho ProN","Yu Mincho",serif;
   background:#111;overflow:hidden;
 }
-#flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:100}
+
+/* フラッシュ */
+#flash{
+  position:fixed;inset:0;
+  background:#fff;opacity:0;
+  pointer-events:none;z-index:100;
+}
 
 /* ===== スタート ===== */
 #start{
   position:fixed;inset:0;
   background:linear-gradient(#f5f1e6,#e3d7bb);
   display:flex;flex-direction:column;
-  justify-content:center;align-items:center;z-index:10;
+  justify-content:center;align-items:center;
+  z-index:10;
 }
 .start-stick{
   width:20px;height:220px;
-  background:repeating-linear-gradient(to bottom,#e6cfa3 0,#e6cfa3 4px,#d9b985 4px,#d9b985 8px);
+  background:repeating-linear-gradient(
+    to bottom,#e6cfa3 0,#e6cfa3 4px,#d9b985 4px,#d9b985 8px);
   position:relative;margin-bottom:16px;
 }
 .start-stick::after{
   content:"";position:absolute;left:50%;
-  width:2px;height:100%;background:#8c6a3f;transform:translateX(-50%);
+  width:2px;height:100%;
+  background:#8c6a3f;transform:translateX(-50%);
 }
 .levels button{margin:6px;padding:10px 22px;background:#000;color:#fff;border:none}
 
@@ -38,39 +47,94 @@ html,body{
   display:flex;flex-direction:column;
   align-items:center;padding-top:14px;
 }
-#chopstickArea{width:90px;height:260px;position:relative;margin:14px 0}
-.stick,.half{
+
+#chopstickArea{
+  width:90px;height:260px;
+  position:relative;margin:14px 0;
+}
+.stick{
   width:18px;height:240px;
   position:absolute;left:50%;
   transform:translateX(-50%);
-  background:repeating-linear-gradient(to bottom,#e6cfa3 0,#e6cfa3 4px,#d9b985 4px,#d9b985 8px);
+  background:repeating-linear-gradient(
+    to bottom,#e6cfa3 0,#e6cfa3 4px,#d9b985 4px,#d9b985 8px);
 }
 .stick::after{
   content:"";position:absolute;left:50%;
-  width:2px;height:100%;background:#8c6a3f;transform:translateX(-50%);
+  width:2px;height:100%;
+  background:#8c6a3f;transform:translateX(-50%);
 }
-.jag-left{clip-path:polygon(100% 0,85% 6%,100% 14%,88% 22%,100% 30%,88% 38%,100% 46%,88% 54%,100% 62%,88% 70%,100% 78%,88% 86%,100% 94%,85% 100%,0 100%,0 0)}
-.jag-right{clip-path:polygon(0 0,15% 6%,0 14%,12% 22%,0 30%,12% 38%,0 46%,12% 54%,0 62%,12% 70%,0 78%,12% 86%,0 94%,15% 100%,100% 100%,100% 0)}
 
-#barWrap{width:96%;max-width:520px;height:14px;background:#aaa;border-radius:10px}
-#bar{width:100%;height:100%;background:linear-gradient(to right,#999,#ffeb3b 46%,#ffeb3b 54%,#999);position:relative}
-#cursor{position:absolute;top:-8px;width:4px;height:32px;background:#c62828}
+.half{
+  position:absolute;
+  background:repeating-linear-gradient(
+    to bottom,#e6cfa3 0,#e6cfa3 4px,#d9b985 4px,#d9b985 8px);
+}
+.jag-left{clip-path:polygon(
+  100% 0,85% 6%,100% 14%,88% 22%,100% 30%,88% 38%,
+  100% 46%,88% 54%,100% 62%,88% 70%,100% 78%,88% 86%,
+  100% 94%,85% 100%,0 100%,0 0);}
+.jag-right{clip-path:polygon(
+  0 0,15% 6%,0 14%,12% 22%,0 30%,12% 38%,
+  0 46%,12% 54%,0 62%,12% 70%,0 78%,12% 86%,
+  0 94%,15% 100%,100% 100%,100% 0);}
 
-button{margin-top:6px;padding:10px 22px;font-size:1em;border-radius:6px}
-#splitBtn,#retryBtn{margin-top:12px;padding:16px 32px;font-size:1.2em}
+/* バー */
+#barWrap{width:96%;max-width:520px;height:14px;background:#aaa;border-radius:10px;}
+#bar{width:100%;height:100%;background:linear-gradient(to right,#999,#ffeb3b 46%,#ffeb3b 54%,#999);position:relative;}
+#cursor{position:absolute;top:-8px;width:4px;height:32px;background:#c62828;}
 
-#backBtn{position:fixed;top:12px;right:12px;z-index:50}
+/* 全体ボタンのデフォルトサイズ（小さめに戻す） */
+button {
+  margin-top: 6px;
+  padding: 10px 22px;
+  font-size: 1em;
+  border-radius: 6px;
+}
 
-.gold{color:#d4af37;font-size:1.4em;animation:gold .5s ease}
-@keyframes gold{from{transform:scale(1.4);opacity:0}to{transform:scale(1);opacity:1}}
+/* 割るボタン・もう一度割るボタンは大きめ */
+#splitBtn, #retryBtn {
+  margin-top: 12px;
+  padding: 16px 32px;
+  font-size: 1.2em;
+  border-radius: 8px;
+}
+/* スタートへ戻るボタンを右上に固定 */
+#backBtn{
+  position:fixed;
+  top:12px;
+  right:12px;
+  z-index:50;
+}
 
-#popup,#titleList{
+.gold{
+  color:#d4af37;font-size:1.4em;
+  animation:gold .5s ease;
+}
+@keyframes gold{
+  from{transform:scale(1.4);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+
+/* ===== ポップアップ ===== */
+#popup{
   position:fixed;inset:0;
-  display:none;align-items:center;justify-content:center;z-index:200;
+  background:rgba(0,0,0,.6);
+  display:none;align-items:center;
+  justify-content:center;z-index:200;
 }
-#popup{background:rgba(0,0,0,.6)}
-.popup-box{background:#fff;padding:20px 26px;border-radius:14px;text-align:center}
-#titleList{background:#f7f3e8;flex-direction:column;overflow:auto}
+.popup-box{
+  background:#fff;padding:20px 26px;
+  border-radius:14px;text-align:center;
+}
+
+/* ===== 称号一覧 ===== */
+#titleList{
+  position:fixed;inset:0;
+  background:#f7f3e8;
+  display:none;flex-direction:column;
+  align-items:center;overflow:auto;z-index:150;
+}
 .title-item{margin:6px;font-size:1.1em}
 .locked{color:#999}
 </style>
@@ -103,6 +167,7 @@ button{margin-top:6px;padding:10px 22px;font-size:1em;border-radius:6px}
   <button onclick="openTitleList()">称号一覧</button>
 </div>
 
+<!-- ゲーム画面 -->
 <div id="game">
   <div id="chopstickArea"></div>
   <div id="barWrap"><div id="bar"><div id="cursor"></div></div></div>
@@ -110,10 +175,12 @@ button{margin-top:6px;padding:10px 22px;font-size:1em;border-radius:6px}
   <button id="retryBtn" onclick="retry()" style="display:none">もう一度割る</button>
   <div id="result"></div>
   <div id="score"></div>
-  <button id="backBtn" onclick="backToStart()">スタートへ戻る</button>
+  <!-- ゲーム画面専用の戻るボタン -->
+  <button id="backBtn" onclick="backToStart()" style="position:absolute;top:14px;right:14px;">スタートへ戻る</button>
 </div>
 
 <script>
+/* ===== 状態 ===== */
 let pos=0,dir=1,timer,speed=2,level=1;
 let streak=[0,0,0];
 
@@ -130,10 +197,14 @@ save();
 
 function save(){localStorage.setItem("titles",JSON.stringify(titles));}
 
+/* ===== 画面 ===== */
+const backBtn = document.getElementById("backBtn");
+backBtn.style.display = "none"; // ページロード時は非表示
 function startGame(l){
-  level=l;speed=l*1.6;
+  level=l; speed=l*1.6;
   start.style.display="none";
   game.style.display="flex";
+  backBtn.style.display = "inline"; // ゲーム画面になったら表示
   retry();
 }
 
@@ -141,8 +212,10 @@ function backToStart(){
   clearInterval(timer);
   game.style.display="none";
   start.style.display="flex";
+  backBtn.style.display="none"; // スタート画面に戻ったら非表示
 }
 
+/* ===== バー ===== */
 function moveBar(){
   clearInterval(timer);
   timer=setInterval(()=>{
@@ -152,6 +225,7 @@ function moveBar(){
   },16);
 }
 
+/* ===== リトライ ===== */
 function retry(){
   clearInterval(timer);
   chopstickArea.innerHTML='<div class="stick"></div>';
@@ -162,63 +236,83 @@ function retry(){
   moveBar();
 }
 
+/* ===== フラッシュ ===== */
+const flashEl = document.getElementById("flash");
 function flash(){
   flashEl.style.opacity=.9;
   setTimeout(()=>flashEl.style.opacity=0,120);
 }
 
+// ===== 割る =====
 function split(){
   clearInterval(timer);
   splitBtn.style.display="none";
   retryBtn.style.display="inline";
 
-  const diff=Math.abs(pos-50);
+  const diff = Math.abs(pos-50);
   let sc;
 
-  if(level===2){
-    sc = diff<=1.2 ? 100 : Math.max(0,100-Math.floor(diff*2));
-  }else if(level===3){
-    sc = diff<=1.3 ? 100 : Math.max(0,100-Math.floor(diff*2));
-  }else{
+ if(level===2){      // ふつう
+  sc = (diff <= 1.5) ? 100 : Math.max(0,100-Math.floor(diff*2));
+}else if(level===3){ // むずかしい
+  sc = (diff <= 1.0) ? 100 : Math.max(0,100-Math.floor(diff*2));
+}else{               // かんたん
     sc = Math.max(0,100-Math.floor(diff*2));
   }
 
-  score.innerHTML=`スコア：${sc}点`;
+  score.innerHTML = `スコア：${sc}点`;
+
   chopstickArea.innerHTML="";
 
   if(sc>=95){
     flash();
     result.innerHTML='<div class="gold">大成功！</div>';
     perfect();
+
     streak[level-1]++;
     showStreak();
     checkTitles(sc);
   }else{
     streak[level-1]=0;
-    result.innerHTML=sc>=70?"少し失敗…":"失敗…";
-    sc>=70?slightFail():badFail();
+    if(sc>=70){
+      result.innerHTML="少し失敗…";
+      slightFail();
+    }else{
+      result.innerHTML="失敗…";
+      badFail();
+    }
   }
 }
 
-function perfect(){createHalf(-10);createHalf(10);}
-function slightFail(){createHalf(-9,"left");createHalf(9,"right");}
-function badFail(){createHalf(-6);}
-
-function createHalf(x,side){
+/* ===== 割れ方 ===== */
+function perfect(){createHalf(-10,false);createHalf(10,false);}
+function slightFail(){createHalf(-9,true,"left");createHalf(9,true,"right");}
+function badFail(){
+  createHalf(-6,false);
+  const u=document.createElement("div");
+  u.className="half";u.style.width="9px";u.style.height="120px";u.style.left="52%";
+  chopstickArea.appendChild(u);
+  const l=document.createElement("div");
+  l.className="half jag-right";l.style.width="9px";l.style.height="120px";
+  l.style.top="120px";l.style.left="56%";l.style.transform="rotate(24deg)";
+  chopstickArea.appendChild(l);
+}
+function createHalf(x,jag,side){
   const d=document.createElement("div");
-  d.className="half"+(side?` jag-${side}`:"");
+  d.className="half"+(jag?` jag-${side}`:"");
+  d.style.width="9px";d.style.height="240px";d.style.left="50%";
   d.style.transform=`translateX(-50%) translateX(${x}px)`;
   chopstickArea.appendChild(d);
 }
 
+/* ===== 称号 ===== */
 function give(name){
   if(!titles[name]){
     titles[name]=true;save();
-    popupText.innerHTML=`🎉 称号獲得！<br><strong>${name}</strong>`;
+    popupText.innerHTML = `🎉 称号獲得！<br><strong>${name}</strong>`;
     popup.style.display="flex";
   }
 }
-
 function checkTitles(sc){
   const base=["割り箸の親友","割り箸職人","Chopstick Master"][level-1];
   if(sc>=95)give(base);
@@ -230,27 +324,27 @@ function checkTitles(sc){
     give("割り箸の神");
 }
 
+/* ===== UI ===== */
+function closePopup(){popup.style.display="none";}
 function openTitleList(){
   titleItems.innerHTML="";
   ALL_TITLES.forEach(t=>{
-    titleItems.innerHTML+=`
-      <div class="title-item ${titles[t]?"":"locked"}">
-        ${titles[t]?t:"？？？"}
-      </div>`;
+    titleItems.innerHTML+=`<div class="title-item ${titles[t]?"":"locked"}">
+      ${titles[t]?t:"？？？"}
+    </div>`;
   });
   titleList.style.display="flex";
 }
 function closeTitleList(){titleList.style.display="none";}
-function closePopup(){popup.style.display="none";}
 
 function showStreak(){
-  const s=streak[level-1];
-  if(s>=2){
-    const d=document.createElement("div");
-    d.className="gold";
-    d.style.fontSize="1.1em";
-    d.innerText=`${s}連続成功！`;
-    result.appendChild(d);
+  const s = streak[level-1];
+  if(s >= 2){
+    const div = document.createElement("div");
+    div.className = "gold";
+    div.style.fontSize = "1.1em";
+    div.innerText = `${s}連続成功！`;
+    result.appendChild(div);
   }
 }
 </script>
