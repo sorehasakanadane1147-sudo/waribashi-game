@@ -84,14 +84,21 @@ html,body{
 #bar{width:100%;height:100%;background:linear-gradient(to right,#999,#ffeb3b 46%,#ffeb3b 54%,#999);position:relative;}
 #cursor{position:absolute;top:-8px;width:4px;height:32px;background:#c62828;}
 
-/* ボタン全体 */
-button{
-  margin-top:12px;
-  padding:16px 32px;
-  font-size:1.2em;
-  border-radius:8px;
+/* 全体ボタンのデフォルトサイズ（小さめに戻す） */
+button {
+  margin-top: 6px;
+  padding: 10px 22px;
+  font-size: 1em;
+  border-radius: 6px;
 }
 
+/* 割るボタン・もう一度割るボタンは大きめ */
+#splitBtn, #retryBtn {
+  margin-top: 12px;
+  padding: 16px 32px;
+  font-size: 1.2em;
+  border-radius: 8px;
+}
 /* スタートへ戻るボタンを右上に固定 */
 #backBtn{
   position:fixed;
